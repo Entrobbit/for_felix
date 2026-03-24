@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Your time is running out!</title>
+<style>
+    body {
+        margin: 0;
+        height: 100vh;
+        background: radial-gradient(circle at center, #0a0a0a, #000000);
+        color: #00ff9f;
+        font-family: "Courier New", monospace;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+
+    h1 {
+        font-size: 3em;
+        text-shadow: 0 0 10px #00ff9f, 0 0 20px #00ff9f;
+        margin-bottom: 40px;
+        animation: flicker 2s infinite;
+    }
+
+    #countdown {
+        font-size: 2em;
+        letter-spacing: 2px;
+        text-shadow: 0 0 5px #00ff9f;
+    }
+
+    .glitch {
+        position: relative;
+        color: #00ff9f;
+        animation: glitch 1.5s infinite;
+    }
+
+    @keyframes flicker {
+        0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+            opacity: 1;
+        }
+        20%, 24%, 55% {
+            opacity: 0.3;
+        }
+    }
+
+    @keyframes glitch {
+        0% {
+            text-shadow: 2px 0 red, -2px 0 blue;
+        }
+        20% {
+            text-shadow: -2px 0 red, 2px 0 blue;
+        }
+        40% {
+            text-shadow: 2px 2px red, -2px -2px blue;
+        }
+        60% {
+            text-shadow: -2px -2px red, 2px 2px blue;
+        }
+        80% {
+            text-shadow: 2px -2px red, -2px 2px blue;
+        }
+        100% {
+            text-shadow: none;
+        }
+    }
+
+    canvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: -1;
+    }
+</style>
+</head>
+<body>
+
+<h1 class="glitch">Your time is running out :)</h1>
+<div id="countdown">Initializing...</div>
+<canvas id="matrix"></canvas>
+
+<script>
+    const targetDate = new Date("April 1, 2026 00:00:00").getTime();
+
+    function updateCountdown() {
+        const now = new Date().getTime();
+        const distance = targetDate - now;
+
+        if (distance <= 0) {
+            document.getElementById("countdown").innerHTML = "TIME'S UP";
+            return;
+        }
+
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance / (1000 * 60 * 60)) % 24);
+        const minutes = Math.floor((distance / (1000 * 60)) % 60);
+        const seconds = Math.floor((distance / 1000) % 60);
+
+        document.getElementById("countdown").innerHTML =
+            `${days}d ${hours}h ${minutes}m ${seconds}s`;
+    }
+
+    setInterval(updateCountdown, 1000);
+    updateCountdown();
+
+    // Matrix-style background
+    const canvas = document.getElementById("matrix");
+    const ctx = canvas.getContext("2d");
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const letters = "01";
+    const fontSize = 16;
+    const columns = canvas.width / fontSize;
+
+    const drops = [];
+    for (let i = 0; i < columns; i++) {
+        drops[i] = 1;
+    }
+
+    function drawMatrix() {
+        ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.fillStyle = "#00ff9f";
+        ctx.font = fontSize + "px monospace";
+
+        for (let i = 0; i < drops.length; i++) {
+            const text = letters.charAt(Math.floor(Math.random() * letters.length));
+            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                drops[i] = 0;
+            }
+
+            drops[i]++;
+        }
+    }
+
+    setInterval(drawMatrix, 50);
+
+    window.addEventListener("resize", () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    });
+</script>
+
+</body>
+</html>
